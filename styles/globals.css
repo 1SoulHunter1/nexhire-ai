@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--foreground) / 0.08),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 223 39% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 223 39% 14%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 243 75% 66%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 188 95% 42%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 222 32% 20%;
+    --muted-foreground: 215 20% 72%;
+    --accent: 222 32% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 30% 24%;
+    --input: 222 30% 24%;
+    --ring: 243 75% 66%;
+    --chart-1: 243 75% 66%;
+    --chart-2: 188 95% 42%;
+    --chart-3: 224 65% 58%;
+    --chart-4: 196 89% 48%;
+    --chart-5: 262 83% 68%;
+    --radius: 0.875rem;
+    --shadow-soft: 222 70% 5%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 223 39% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 223 39% 14%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 243 75% 66%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 188 95% 42%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 222 32% 20%;
+    --muted-foreground: 215 20% 72%;
+    --accent: 222 32% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 30% 24%;
+    --input: 222 30% 24%;
+    --ring: 243 75% 66%;
+    --chart-1: 243 75% 66%;
+    --chart-2: 188 95% 42%;
+    --chart-3: 224 65% 58%;
+    --chart-4: 196 89% 48%;
+    --chart-5: 262 83% 68%;
+    --radius: 0.875rem;
+    --shadow-soft: 222 70% 5%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-balance tracking-tight;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply transition-all duration-200 ease-out;
+  }
+}
+
+@layer components {
+  .app-container {
+    @apply container w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card-surface {
+    @apply rounded-lg border border-border/80 bg-card/90 p-6 shadow-card backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-soft;
+  }
+
+  .card-surface-soft {
+    @apply rounded-lg border border-border/70 bg-card/70 p-5 shadow-soft transition-all duration-300 ease-out hover:border-secondary/35;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-md bg-muted;
+  }
+}
