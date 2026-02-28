@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   FiBell,
   FiClipboard,
@@ -12,6 +12,7 @@ import {
   FiHome,
   FiLogOut,
   FiMenu,
+  FiX,
   FiSettings,
   FiUser,
   FiUserCheck,
@@ -59,12 +60,141 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  const isMobileSidebarVisible = !isDesktop && isMobileSidebarOpen;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const handleMediaQueryChange = (event: MediaQueryListEvent | MediaQueryList) => {
+      setIsDesktop(event.matches);
+      if (event.matches) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    handleMediaQueryChange(mediaQuery);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      handleMediaQueryChange(event);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   useEffect(() => {
     navItems.forEach((item) => {
       router.prefetch(item.href);
     });
   }, [navItems, router]);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      setIsMobileSidebarOpen(false);
+    }
+  }, [pathname, isDesktop]);
+
+  useEffect(() => {
+    if (!isMobileSidebarVisible) {
+      return;
+    }
+
+    const previouslyFocusedElement = document.activeElement as HTMLElement | null;
+    const sidebarElement = sidebarRef.current;
+
+    if (!sidebarElement) {
+      return;
+    }
+
+    const focusableElements = sidebarElement.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileSidebarOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (event.shiftKey) {
+        if (activeElement === firstElement || activeElement === sidebarElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else if (activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocusedElement?.focus();
+    };
+  }, [isMobileSidebarVisible]);
+
+  useEffect(() => {
+    if (!isMobileSidebarVisible) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      if (!sidebarRef.current) {
+        return;
+      }
+
+      const target = event.target as Node;
+      if (!sidebarRef.current.contains(target)) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+    };
+  }, [isMobileSidebarVisible]);
+
+  useEffect(() => {
+    if (!isMobileSidebarVisible) {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isMobileSidebarVisible]);
 
   const handleSignOut = () => {
     const activeRole = pathname.split("/")[1] || "student";
@@ -77,9 +207,26 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_15%_10%,hsl(var(--primary)/0.2),transparent_35%),radial-gradient(circle_at_90%_0%,hsl(var(--secondary)/0.18),transparent_30%)]" />
 
       <div className="relative flex min-h-screen">
-        <aside
+        <button
+          type="button"
+          onClick={() => setIsMobileSidebarOpen(false)}
           className={cn(
-            "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border/70 bg-card/90 backdrop-blur-md transition-all duration-300 md:static md:translate-x-0",
+            "fixed inset-0 z-40 bg-black/45 transition-opacity duration-300 md:hidden",
+            isMobileSidebarVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          )}
+          aria-label="Close sidebar overlay"
+          aria-hidden="true"
+        />
+
+        <aside
+          ref={sidebarRef}
+          id="dashboard-sidebar"
+          role={isDesktop ? "complementary" : "dialog"}
+          aria-modal={isMobileSidebarVisible ? true : undefined}
+          aria-label={`${roleTitle} navigation`}
+          tabIndex={isMobileSidebarVisible ? -1 : undefined}
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/70 bg-card/90 backdrop-blur-md transition-all duration-300 ease-in-out md:static md:z-auto md:translate-x-0",
             isCollapsed ? "w-[88px]" : "w-72",
             isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           )}
@@ -104,7 +251,7 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
             </button>
           </div>
 
-          <nav className="flex-1 space-y-1 p-3">
+          <nav className="flex-1 space-y-1 p-3" aria-label={`${roleTitle} sidebar menu`}>
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               const Icon = navIconMap[item.icon];
@@ -113,6 +260,11 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => {
+                    if (!isDesktop) {
+                      setIsMobileSidebarOpen(false);
+                    }
+                  }}
                   onMouseEnter={() => router.prefetch(item.href)}
                   onFocus={() => router.prefetch(item.href)}
                   className={cn(
@@ -152,10 +304,23 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
-                  className="inline-flex rounded-md border border-border/80 p-2 text-muted-foreground transition hover:text-foreground md:hidden"
-                  aria-label="Open sidebar"
+                  className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 text-muted-foreground transition-colors duration-200 hover:text-foreground md:hidden"
+                  aria-label={isMobileSidebarVisible ? "Close sidebar" : "Open sidebar"}
+                  aria-expanded={isMobileSidebarVisible}
+                  aria-controls="dashboard-sidebar"
                 >
-                  <FiMenu className="size-4" />
+                  <FiMenu
+                    className={cn(
+                      "absolute size-4 transition-all duration-200",
+                      isMobileSidebarVisible ? "rotate-90 scale-75 opacity-0" : "rotate-0 scale-100 opacity-100"
+                    )}
+                  />
+                  <FiX
+                    className={cn(
+                      "absolute size-4 transition-all duration-200",
+                      isMobileSidebarVisible ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-75 opacity-0"
+                    )}
+                  />
                 </button>
                 <h1 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {roleTitle}
