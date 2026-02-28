@@ -65,8 +65,12 @@ NexHire AI addresses these gaps through a unified multi-role intelligence layer:
 | 📈 AI Readiness Score | Visual readiness index with breakdown insights |
 | 💼 Job Matching System | Match-scored job recommendations with explanations and filters |
 | 🧩 Skill Gap Insights | High-demand skill deficiencies and improvement priorities |
+| 📄 AI Resume Analysis | Drag-and-drop resume upload simulation with extracted skills, readiness deltas, and improvement tips |
+| 🗺️ AI Career Roadmap Generator | Skill impact simulator with probability prediction (capped), timeline plan, and AI insight panel |
+| 💬 AI Career Mentor Chat | Interactive mentor chat with suggested prompts, typing state, and keyword-aware mock responses |
 | 🧑‍💼 Recruiter Intelligence Dashboard | Candidate rankings, role filters, and shortlist intelligence |
 | 🏛️ Placement Governance Panel | Eligibility rules, approvals workflow, analytics, and reports |
+| 🔐 Session UX Improvements | Functional sign-out flow and route prefetching for faster sidebar navigation |
 
 ---
 
@@ -80,17 +84,23 @@ NexHire AI addresses these gaps through a unified multi-role intelligence layer:
 							 │
 							 ├── Student Experience
 							 │    ├─ Dashboard
-							 │    ├─ Career GPS
-							 │    └─ Job Matching
+							 │    ├─ Career GPS / Readiness
+							 │    ├─ Job Matching
+							 │    ├─ Resume Analysis
+							 │    ├─ Career Roadmap Generator
+							 │    └─ AI Career Mentor Chat
 							 │
 							 ├── Recruiter Experience
-							 │    ├─ Stats + Filters
-							 │    └─ Candidate Ranking
+							 │    ├─ Dashboard (Stats + Filters)
+							 │    ├─ Open Roles
+							 │    ├─ Candidates
+							 │    └─ Analytics
 							 │
 							 └── Placement Officer Experience
-										├─ Governance Analytics
-										├─ Eligibility Rules
-										└─ Approvals + Reports
+										├─ Dashboard (Governance Analytics)
+										├─ Students
+										├─ Drive Management
+										└─ Reports
 
 Data Source: Local mock datasets (`lib/mock-data.ts`)
 ```
@@ -124,11 +134,21 @@ nexhire-ai/
 │   ├── student/
 │   │   ├── dashboard/
 │   │   ├── jobs/
-│   │   └── readiness/
+│   │   ├── readiness/
+│   │   ├── resume/
+│   │   ├── roadmap/
+│   │   ├── mentor/
+│   │   └── profile/
 │   ├── recruiter/
-│   │   └── dashboard/
+│   │   ├── dashboard/
+│   │   ├── roles/
+│   │   ├── candidates/
+│   │   └── analytics/
 │   └── placement/
-│       └── dashboard/
+│       ├── dashboard/
+│       ├── students/
+│       ├── drives/
+│       └── reports/
 ├── components/
 │   ├── auth/
 │   ├── dashboard/
@@ -191,6 +211,9 @@ Add product screenshots here:
 - Student Dashboard
 - Career GPS
 - Job Matching
+- Resume Analysis
+- Career Roadmap Generator
+- AI Career Mentor
 - Recruiter Dashboard
 - Placement Governance Panel
 
