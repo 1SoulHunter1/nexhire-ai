@@ -58,6 +58,14 @@ export function AuthForm({ mode }: AuthFormProps) {
     event.preventDefault();
 
     if (isLogin) {
+      window.localStorage.setItem(
+        "nexhire:auth:session",
+        JSON.stringify({
+          role,
+          email,
+          signedInAt: new Date().toISOString(),
+        })
+      );
       router.push(roleRedirectMap[role]);
       return;
     }

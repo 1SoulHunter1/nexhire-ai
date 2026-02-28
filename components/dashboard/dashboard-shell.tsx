@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
 import {
   FiBell,
   FiClipboard,
@@ -18,6 +18,7 @@ import {
   FiUsers,
   FiBriefcase,
   FiBarChart2,
+  FiCpu,
 } from "react-icons/fi";
 
 import { cn } from "@/lib/utils";
@@ -28,7 +29,8 @@ type NavIconKey =
   | "bar-chart"
   | "user-check"
   | "users"
-  | "clipboard";
+  | "clipboard"
+  | "bot";
 
 const navIconMap = {
   home: FiHome,
@@ -37,6 +39,7 @@ const navIconMap = {
   "user-check": FiUserCheck,
   users: FiUsers,
   clipboard: FiClipboard,
+  bot: FiCpu,
 } as const;
 
 export type DashboardNavItem = {
@@ -53,8 +56,21 @@ type DashboardShellProps = {
 
 export function DashboardShell({ roleTitle, navItems, children }: DashboardShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    navItems.forEach((item) => {
+      router.prefetch(item.href);
+    });
+  }, [navItems, router]);
+
+  const handleSignOut = () => {
+    const activeRole = pathname.split("/")[1] || "student";
+    window.localStorage.removeItem("nexhire:auth:session");
+    router.push(`/login?role=${activeRole}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,6 +113,8 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
                 <Link
                   key={item.href}
                   href={item.href}
+                  onMouseEnter={() => router.prefetch(item.href)}
+                  onFocus={() => router.prefetch(item.href)}
                   className={cn(
                     "flex items-center gap-3 rounded-md border px-3 py-2 text-sm transition",
                     isCollapsed && "justify-center px-2",
@@ -115,6 +133,7 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
           <div className="border-t border-border/70 p-3">
             <button
               type="button"
+              onClick={handleSignOut}
               className={cn(
                 "flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm text-muted-foreground transition hover:border-border/80 hover:bg-accent/40 hover:text-foreground",
                 isCollapsed && "justify-center px-2"
@@ -178,6 +197,7 @@ export function DashboardShell({ roleTitle, navItems, children }: DashboardShell
                     </button>
                     <button
                       type="button"
+                      onClick={handleSignOut}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm text-muted-foreground transition hover:bg-accent/50 hover:text-foreground"
                     >
                       <FiLogOut className="size-4" />
