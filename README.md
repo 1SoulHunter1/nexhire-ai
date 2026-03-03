@@ -13,6 +13,10 @@
 </p>
 
 <p align="center">
+	ℹ️ <em>For demonstration purposes, you may use any dummy email address and password to log in.</em>
+</p>
+
+<p align="center">
 	<img src="https://img.shields.io/badge/Next.js-14-black?logo=next.js" alt="Next.js" />
 	<img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript" />
 	<img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss" alt="Tailwind CSS" />
